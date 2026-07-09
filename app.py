@@ -48,7 +48,7 @@ st.markdown("---")
 # 3. MEMBACA FILE DATA (CSV) YANG SUDAH ANDA DOWNLOAD
 st.header("📊 Data Harga Bahan Pangan")
 
-folder_target = "D:/BESTIE"
+folder_target = "pd.read_csv("harga_kemendag.csv")"
 pola_pencarian = os.path.join(folder_target, "*harga*")
 files_harga = glob.glob(pola_pencarian)
 
@@ -89,7 +89,7 @@ try:
     )
 
     if st.button("Hitung Rekomendasi Menu"):
-        df_gizi = pd.read_csv("D:/BESTIE/data_bahan_pangan.csv", sep=None, engine='python')
+        df_gizi = pd.read_csv("pd.read_csv("harga_kemendag.csv")", sep=None, engine='python')
         df_gizi.columns = df_gizi.columns.str.strip().str.lower()
         
         def deteksi_alergen(nama_bahan):
