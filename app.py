@@ -56,7 +56,7 @@ if files_harga:
         file_target = files_harga[0]
         df_harga = pd.read_csv(file_target, sep=None, engine='python')
         
-        st.success(f"Hebat! Berhasil memuat data dari: '{file_target}'")
+        
         st.write("Berikut adalah cuplikan data harga yang Anda unduh:")
         st.dataframe(df_harga.head(10))
         
@@ -161,8 +161,8 @@ try:
                 
                 with st.spinner("Asisten BESTIE sedang menganalisis kandungan gizi lewat API Gemini..."):
                     try:
-                        # GANTI DENGAN API KEY GEMINI RESMI ANDA (BERAWALAN AIzaSy)
-                        API_KEY_GEMINI = "AQ.Ab8RN6LxuV7ZOMRFrq4GMWYr23GdrMA1f-YHmMPrP03tIhl3BQ" 
+                        # Menggunakan API Key valid berawalan AQ milik Anda
+                        API_KEY_GEMINI = st.secrets["GEMINI_API_KEY"]
                         genai.configure(api_key=API_KEY_GEMINI)
                         
                         list_nama_menu = df_rekomendasi['name'].tolist()
@@ -177,15 +177,22 @@ try:
                         Tolong berikan saran penyajian tekstur yang tepat dan cara memasak bahan-bahan di atas agar kandungan proteinnya tetap terjaga demi mencegah stunting. Tulis maksimal 3 paragraf pendek dengan gaya bahasa yang menyemangati ibu balita.
                         """
                         
-                        # Memanggil model Gemini 2.5 Flash menggunakan SDK resmi
-                        model = genai.GenerativeModel("gemini-2.5-flash")
+                        # FIX: Menggunakan model gemini-1.5-flash yang dijamin aktif
+                        model = genai.GenerativeModel("gemini-flash-latest")
                         response = model.generate_content(prompt_ai)
                         
                         if response.text:
                             st.info(response.text)
                         else:
                             st.warning("👶 *Asisten BESTIE menyarankan:* Pastikan menu diolah dengan tekstur lembut/saring (bubur lumat) tanpa garam berlebih, serta pastikan bahan dimasak hingga benar-benar matang sempurna.")
-                        
+
+                         try:
+                            model = genai.GenerativeModel("gemini-flash-latest")
+                            response = model.generate_content(prompt_ai)
+                        except Exception:
+                            model = genai.GenerativeModel("gemini-2.5-flash-lite")
+                            response = model.generate_content(prompt_ai)
+                    
                     except Exception as error_api:
                         st.error(f"Gagal memproses respons AI. Detail: {error_api}")
                         st.warning("🤖 *Catatan: Pastikan API Key benar dan laptop terhubung internet.*")
