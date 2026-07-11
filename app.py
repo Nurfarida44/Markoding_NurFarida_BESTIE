@@ -89,7 +89,7 @@ try:
         )
 
         if st.button("Hitung Rekomendasi Menu"):
-            # Perbaikan: Membaca file data bahan pangan yang ada di GitHub (Ganti ke file data_bahan_pangan.csv jika diperlukan)
+            # Perbaikan: Membaca file data bahan pangan yang ada di GitHub
             df_gizi = pd.read_csv("data_bahan_pangan.csv", sep=None, engine='python')
             df_gizi.columns = df_gizi.columns.str.strip().str.lower()
             
@@ -161,7 +161,9 @@ try:
                 
                 with st.spinner("Asisten BESTIE sedang menganalisis kandungan gizi lewat API Gemini..."):
                     try:
-                        API_KEY_GEMINI = "AQ.Ab8RN6LAEeWVY5dcJdweYHq8Lh1aXyx0LtP7sPIdrQJwOEaIIQ" 
+                        # GANTI DENGAN API KEY GEMINI RESMI ANDA (BERAWALAN AIzaSy)
+                        API_KEY_GEMINI = "AQ.Ab8RN6LxuV7ZOMRFrq4GMWYr23GdrMA1f-YHmMPrP03tIhl3BQ" 
+                        genai.configure(api_key=API_KEY_GEMINI)
                         
                         list_nama_menu = df_rekomendasi['name'].tolist()
                         prompt_ai = f"""
@@ -175,38 +177,17 @@ try:
                         Tolong berikan saran penyajian tekstur yang tepat dan cara memasak bahan-bahan di atas agar kandungan proteinnya tetap terjaga demi mencegah stunting. Tulis maksimal 3 paragraf pendek dengan gaya bahasa yang menyemangati ibu balita.
                         """
                         
-                        url_api = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY_GEMINI}"
-                        headers = {'Content-Type': 'application/json'}
+                        # Memanggil model Gemini 2.5 Flash menggunakan SDK resmi
+                        model = genai.GenerativeModel("gemini-2.5-flash")
+                        response = model.generate_content(prompt_ai)
                         
-                        payload = {
-                            "contents": [{
-                                "parts": [{"text": prompt_ai}]
-                            }],
-                            "safetySettings": [
-                                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-                                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-                                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-                                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
-                            ]
-                        }
-                        
-                        respons_google = requests.post(url_api, headers=headers, json=payload)
-                        hasil_json = respons_google.json()
-                        
-                        if 'candidates' in hasil_json and len(hasil_json['candidates']) > 0:
-                            candidate = hasil_json['candidates'][0]
-                            if 'content' in candidate and 'parts' in candidate['content']:
-                                teks_jawaban_ai = candidate['content']['parts'][0]['text']
-                                st.info(teks_jawaban_ai)
-                            else:
-                                st.warning("👶 *Asisten BESTIE menyarankan:* Pastikan menu diolah dengan tekstur lembut/saring (bubur lumat) tanpa garam berlebih, serta pastikan bahan dimasak hingga benar-benar matang sempurna.")
+                        if response.text:
+                            st.info(response.text)
                         else:
-                            if 'error' in hasil_json:
-                                st.write(f"Sistem sedang sinkronisasi kode: {hasil_json['error']['message']}")
                             st.warning("👶 *Asisten BESTIE menyarankan:* Pastikan menu diolah dengan tekstur lembut/saring (bubur lumat) tanpa garam berlebih, serta pastikan bahan dimasak hingga benar-benar matang sempurna.")
                         
                     except Exception as error_api:
                         st.error(f"Gagal memproses respons AI. Detail: {error_api}")
-                        st.warning("🤖 *Catatan: Pastikan laptop terhubung internet.*")
+                        st.warning("🤖 *Catatan: Pastikan API Key benar dan laptop terhubung internet.*")
 except Exception as e:
     st.error(f"Gagal memproses menu rekomendasi pintar. Eror: {e}")
