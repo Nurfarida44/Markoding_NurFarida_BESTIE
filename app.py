@@ -4,7 +4,7 @@ import os
 import glob
 import requests
 import json
-import google.generativeai as genai
+from google import genai
 
 # 1. KONFIGURASI LAYOUT HALAMAN (Wajib di baris paling atas)
 st.set_page_config(
@@ -171,7 +171,7 @@ try:
                     try:
                         # API key diambil dari Streamlit Secrets (aman, tidak tampil di kode)
                         API_KEY_GEMINI = st.secrets["GEMINI_API_KEY"]
-                        genai.configure(api_key=API_KEY_GEMINI)
+                        client = genai.Client(api_key=API_KEY_GEMINI)
 
                         list_nama_menu = df_rekomendasi['name'].tolist()
                         prompt_ai = f"""
@@ -186,8 +186,10 @@ try:
                         """
 
                         # Gunakan alias "latest" agar otomatis mengikuti model flash yang masih aktif
-                        model = genai.GenerativeModel("gemini-flash-latest")
-                        response = model.generate_content(prompt_ai)
+                        response = client.models.generate_content(
+                            model="gemini-flash-latest",
+                            contents=prompt_ai
+                        )
 
                         if response.text:
                             st.info(response.text)
